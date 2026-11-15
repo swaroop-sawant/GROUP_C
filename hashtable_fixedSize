@@ -1,0 +1,67 @@
+size = 10;
+hashtable = [None] * size
+deleted = "deleted"
+
+def InsertKey():
+  key = int(input("enter the key to insert:"))
+  index = key % size;
+  for i in range (size):
+    pos = (index + i) % size
+    
+    if(hashtable[pos] == None or hashtable[pos] == deleted):
+      hashtable[pos] = key
+      print("key added")
+      return
+
+    if(hashtable[pos] == key):
+      print("key already exists")
+      return
+
+
+def SearchKey():
+   key = int(input("enter key to search:"))
+   index = key % size;
+   for i in range (size):
+     pos = (index + i) % size
+
+     if(hashtable[pos] == key):
+       print("key found at index:",i)
+       return
+
+def DeleteKey():
+   key = int(input("enter the key to delete:"))
+   index = key % size;
+   for i in range (size):
+
+     if(hashtable[i] == key):
+       hashtable[i] == "deleted"
+       
+       return
+
+def DisplayTable():
+  for i in range(size):
+    print(i,":",hashtable[i])
+
+while True:
+  print("=========hashtable problem============")
+  print("1. Insert a key")
+  print("2. search a key")
+  print("3. delete a key")
+  print("4. display table")
+  print("5. exit")
+
+  choice = int(input("enter your choice:"))
+
+  if choice == 1:
+    InsertKey()
+  elif choice == 2:
+    SearchKey()
+  elif choice == 3:
+    DeleteKey()
+  elif choice == 4:
+    DisplayTable()
+  elif choice == 5:
+    print("EXITING.....")
+    break
+  else:
+    print("Invalid choice")
