@@ -1,0 +1,134 @@
+
+class Bucket:
+    def __init__(self, depth):
+        self.depth = depth
+        self.data = {}
+
+
+class ExtendibleHash:
+    def __init__(self):
+        self.global_depth = 1
+        self.capacity = 2
+
+        b = Bucket(1)
+        self.directory = [b, b]
+
+    def insert(self, key, value):
+        self._insert(key, value)
+
+    def _insert(self, key, value):
+        index = key % (2 ** self.global_depth)
+        bucket = self.directory[index]
+
+        if key in bucket.data:
+            bucket.data[key] = value
+            print("Value updated")
+            return
+
+        if len(bucket.data) < self.capacity:
+            bucket.data[key] = value
+            print("Inserted successfully")
+            return
+
+        # Double directory if required
+        if bucket.depth == self.global_depth:
+            self.directory = self.directory + self.directory
+            self.global_depth += 1
+
+        # Split the bucket
+        old_depth = bucket.depth
+        bucket.depth += 1
+
+        new_bucket = Bucket(bucket.depth)
+
+        for i in range(len(self.directory)):
+            if self.directory[i] is bucket:
+                if (i >> old_depth) & 1:
+                    self.directory[i] = new_bucket
+
+        # Redistribute old keys
+        old_data = list(bucket.data.items())
+        bucket.data.clear()
+
+        for k, v in old_data:
+            self._insert(k, v)
+
+        # Insert new key
+        self._insert(key, value)
+
+    def search(self, key):
+        index = key % (2 ** self.global_depth)
+        bucket = self.directory[index]
+
+        if key in bucket.data:
+            print("Value:", bucket.data[key])
+        else:
+            print("Key not found")
+
+    def delete(self, key):
+        index = key % (2 ** self.global_depth)
+        bucket = self.directory[index]
+
+        if key in bucket.data:
+            del bucket.data[key]
+            print("Deleted successfully")
+        else:
+            print("Key not found")
+
+    def display(self):
+        print("\nGlobal Depth:", self.global_depth)
+        print("\nDirectory:")
+
+        buckets = []
+        for b in self.directory:
+            if b not in buckets:
+                buckets.append(b)
+
+        labels = {}
+        for i, b in enumerate(buckets):
+            labels[id(b)] = "B" + str(i)
+
+        for i, b in enumerate(self.directory):
+            print(i, "->", labels[id(b)])
+
+        print("\nBuckets:")
+        for b in buckets:
+            print(labels[id(b)],
+                  "Local Depth:", b.depth,
+                  "Data:", b.data)
+
+
+# Main program
+
+h = ExtendibleHash()
+
+while True:
+    print("\n1. Insert")
+    print("2. Search")
+    print("3. Delete")
+    print("4. Display")
+    print("5. Exit")
+
+    choice = int(input("Enter choice: "))
+
+    if choice == 1:
+        key = int(input("Enter key: "))
+        value = input("Enter value: ")
+        h.insert(key, value)
+
+    elif choice == 2:
+        key = int(input("Enter key: "))
+        h.search(key)
+
+    elif choice == 3:
+        key = int(input("Enter key: "))
+        h.delete(key)
+
+    elif choice == 4:
+        h.display()
+
+    elif choice == 5:
+        break
+
+    else:
+        print("Invalid choice")
